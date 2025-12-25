@@ -36,6 +36,8 @@ export type BuildingType =
   // Utilities
   | 'power_plant'
   | 'water_tower'
+  | 'solar_panel'
+  | 'wind_turbine'
   // Transportation
   | 'subway_station'
   | 'rail_station'
@@ -98,6 +100,8 @@ export type Tool =
   | 'tennis'
   | 'power_plant'
   | 'water_tower'
+  | 'solar_panel'
+  | 'wind_turbine'
   | 'subway_station'
   | 'rail_station'
   | 'stadium'
@@ -163,6 +167,8 @@ export const TOOL_INFO: Record<Tool, ToolInfo> = {
   tennis: { name: 'Tennis Court', cost: 200, description: 'Recreation facility', size: 1 },
   power_plant: { name: 'Power Plant', cost: 3000, description: 'Generate electricity (2x2)', size: 2 },
   water_tower: { name: 'Water Tower', cost: 1000, description: 'Provide water', size: 1 },
+  solar_panel: { name: 'Solar Panel', cost: 4000, description: 'Generate clean electricity from sunlight', size: 1 },
+  wind_turbine: { name: 'Wind Turbine', cost: 4500, description: 'Generate clean electricity from wind (requires coastal placement)', size: 1 },
   subway_station: { name: 'Subway Station', cost: 750, description: 'Access to subway network', size: 1 },
   rail_station: { name: 'Rail Station', cost: 1000, description: 'Passenger rail station', size: 2 },
   stadium: { name: 'Stadium', cost: 5000, description: 'Boosts commercial demand (3x3)', size: 3 },
@@ -388,6 +394,8 @@ export const BUILDING_STATS: Record<BuildingType, { maxPop: number; maxJobs: num
   tennis: { maxPop: 0, maxJobs: 1, pollution: -5, landValue: 15 },
   power_plant: { maxPop: 0, maxJobs: 30, pollution: 30, landValue: -20 },
   water_tower: { maxPop: 0, maxJobs: 5, pollution: 0, landValue: 5 },
+  solar_panel: { maxPop: 0, maxJobs: 2, pollution: -5, landValue: 5 },
+  wind_turbine: { maxPop: 0, maxJobs: 3, pollution: -5, landValue: -5 },
   stadium: { maxPop: 0, maxJobs: 50, pollution: 5, landValue: 40 },
   museum: { maxPop: 0, maxJobs: 40, pollution: 0, landValue: 45 },
   airport: { maxPop: 0, maxJobs: 200, pollution: 20, landValue: 50 },

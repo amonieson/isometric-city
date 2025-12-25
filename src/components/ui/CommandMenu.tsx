@@ -177,7 +177,7 @@ function buildMenuItems(): MenuItem[] {
   });
 
   // Utilities
-  const utilitiesCategory: Tool[] = ['power_plant', 'water_tower', 'subway_station', 'rail_station'];
+  const utilitiesCategory: Tool[] = ['power_plant', 'solar_panel', 'wind_turbine', 'water_tower', 'subway_station', 'rail_station'];
   utilitiesCategory.forEach(tool => {
     const info = TOOL_INFO[tool];
     items.push({

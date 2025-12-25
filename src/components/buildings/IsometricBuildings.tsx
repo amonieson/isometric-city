@@ -633,6 +633,83 @@ export const PowerPlant: React.FC<BuildingProps> = ({ size = TILE_WIDTH }) => {
   );
 };
 
+// Solar panel
+export const SolarPanel: React.FC<BuildingProps> = ({ size = TILE_WIDTH }) => {
+  const w = size;
+  const h = getTileHeight(w);
+  const panelH = h * 0.3;
+  const totalH = h + panelH;
+  const groundY = panelH;
+  
+  return (
+    <svg width={w} height={totalH} viewBox={`0 0 ${w} ${totalH}`} style={{ display: 'block' }}>
+      {/* Ground */}
+      <polygon points={`${w/2},${groundY} ${w},${groundY + h/2} ${w/2},${totalH} 0,${groundY + h/2}`} fill="#4a7c3f" stroke="#2d4a26" strokeWidth={0.5} />
+      {/* Base platform */}
+      <IsometricBox w={w * 0.6} h={h * 0.4} depth={h * 0.15} topColor="#2a2a2a" leftColor="#1a1a1a" rightColor="#3a3a3a" yOffset={panelH * 0.5} />
+      {/* Solar panel array - angled toward sun */}
+      <polygon points={`${w * 0.2},${panelH * 0.3} ${w * 0.8},${panelH * 0.3} ${w * 0.75},${panelH * 0.7} ${w * 0.25},${panelH * 0.7}`} fill="#1a3a5a" stroke="#0a2a4a" strokeWidth={0.5} />
+      {/* Panel grid lines */}
+      {[0, 1, 2].map(i => (
+        <line
+          key={i}
+          x1={w * (0.2 + i * 0.2)}
+          y1={panelH * 0.3}
+          x2={w * (0.2 + i * 0.2)}
+          y2={panelH * 0.7}
+          stroke="#0a2a4a"
+          strokeWidth={0.3}
+        />
+      ))}
+      {/* Support posts */}
+      <rect x={w * 0.25} y={panelH * 0.7} width={2} height={h * 0.1} fill="#4a5568" />
+      <rect x={w * 0.5 - 1} y={panelH * 0.7} width={2} height={h * 0.1} fill="#4a5568" />
+      <rect x={w * 0.75 - 2} y={panelH * 0.7} width={2} height={h * 0.1} fill="#4a5568" />
+    </svg>
+  );
+};
+
+// Wind turbine
+export const WindTurbine: React.FC<BuildingProps> = ({ size = TILE_WIDTH }) => {
+  const w = size;
+  const h = getTileHeight(w);
+  const towerH = h * 2.0;
+  const totalH = h + towerH;
+  const groundY = towerH;
+  
+  return (
+    <svg width={w} height={totalH} viewBox={`0 0 ${w} ${totalH}`} style={{ display: 'block' }}>
+      {/* Ground */}
+      <polygon points={`${w/2},${groundY} ${w},${groundY + h/2} ${w/2},${totalH} 0,${groundY + h/2}`} fill="#4a7c3f" stroke="#2d4a26" strokeWidth={0.5} />
+      {/* Tower - tapered */}
+      <polygon points={`${w * 0.48},${towerH} ${w * 0.52},${towerH} ${w * 0.51},${towerH * 0.1} ${w * 0.49},${towerH * 0.1}`} fill="#666" stroke="#555" strokeWidth={0.5} />
+      {/* Nacelle (housing at top) */}
+      <ellipse cx={w * 0.5} cy={towerH * 0.1} rx={w * 0.15} ry={h * 0.08} fill="#888" stroke="#777" strokeWidth={0.5} />
+      {/* Blades - simplified 3-blade design */}
+      {[0, 120, 240].map((angle, i) => {
+        const angleRad = (angle * Math.PI) / 180;
+        const bladeLength = w * 0.25;
+        const x1 = w * 0.5;
+        const y1 = towerH * 0.1;
+        const x2 = x1 + bladeLength * Math.cos(angleRad);
+        const y2 = y1 + bladeLength * Math.sin(angleRad);
+        return (
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="#aaa"
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+        );
+      })}
+    </svg>
+  );
+};
+
 // Water tower
 export const WaterTower: React.FC<BuildingProps> = ({ size = TILE_WIDTH }) => {
   const w = size;
@@ -938,6 +1015,10 @@ export const BuildingRenderer: React.FC<{
         return <PowerPlant size={size} />;
       case 'water_tower':
         return <WaterTower size={size} />;
+      case 'solar_panel':
+        return <SolarPanel size={size} />;
+      case 'wind_turbine':
+        return <WindTurbine size={size} />;
       case 'stadium':
         return <Mall size={size} powered={powered} />; // Placeholder
       case 'museum':

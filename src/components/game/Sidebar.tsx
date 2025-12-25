@@ -325,7 +325,7 @@ export const Sidebar = React.memo(function Sidebar({ onExit }: { onExit?: () => 
     { 
       key: 'utilities', 
       label: 'Utilities', 
-      tools: ['power_plant', 'water_tower', 'subway_station', 'rail_station'] as Tool[],
+      tools: ['power_plant', 'solar_panel', 'wind_turbine', 'water_tower', 'subway_station', 'rail_station'] as Tool[],
       forceOpenUpward: true
     },
     { 

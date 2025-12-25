@@ -550,7 +550,7 @@ function isNearWater(grid: Tile[][], x: number, y: number, size: number): boolea
 }
 
 // Building types that require water adjacency
-const WATERFRONT_BUILDINGS: BuildingType[] = ['marina_docks_small', 'pier_large'];
+const WATERFRONT_BUILDINGS: BuildingType[] = ['marina_docks_small', 'pier_large', 'wind_turbine'];
 
 // Check if a building type requires water adjacency
 export function requiresWaterAdjacency(buildingType: BuildingType): boolean {
@@ -851,12 +851,14 @@ export const SERVICE_CONFIG = {
   university: { range: 19, rangeSquared: 361, type: 'education' as const },
   power_plant: { range: 15, rangeSquared: 225 },
   water_tower: { range: 12, rangeSquared: 144 },
+  solar_panel: { range: 8, rangeSquared: 64 },
+  wind_turbine: { range: 10, rangeSquared: 100 },
 } as const;
 
 // Building types that provide services
 const SERVICE_BUILDING_TYPES = new Set([
   'police_station', 'fire_station', 'hospital', 'school', 'university',
-  'power_plant', 'water_tower'
+  'power_plant', 'water_tower', 'solar_panel', 'wind_turbine'
 ]);
 
 // Calculate service coverage from service buildings - optimized version
@@ -904,7 +906,8 @@ function calculateServiceCoverage(grid: Tile[][], size: number): ServiceCoverage
     const maxX = Math.min(size - 1, x + range);
     
     // Handle power and water (boolean coverage)
-    if (type === 'power_plant') {
+    // All power sources work 24/7 (solar assumes battery system)
+    if (type === 'power_plant' || type === 'solar_panel' || type === 'wind_turbine') {
       for (let ny = minY; ny <= maxY; ny++) {
         for (let nx = minX; nx <= maxX; nx++) {
           const dx = nx - x;
@@ -1522,6 +1525,8 @@ function updateBudgetCosts(grid: Tile[][], budget: Budget): Budget {
   let universityCount = 0;
   let parkCount = 0;
   let powerCount = 0;
+  let solarCount = 0;
+  let windCount = 0;
   let waterCount = 0;
   let roadCount = 0;
   let subwayTileCount = 0;
@@ -1544,6 +1549,8 @@ function updateBudgetCosts(grid: Tile[][], budget: Budget): Budget {
         case 'park_large': parkCount++; break;
         case 'tennis': parkCount++; break;
         case 'power_plant': powerCount++; break;
+        case 'solar_panel': solarCount++; break;
+        case 'wind_turbine': windCount++; break;
         case 'water_tower': waterCount++; break;
         case 'road': roadCount++; break;
         case 'subway_station': subwayStationCount++; break;
@@ -1557,7 +1564,7 @@ function updateBudgetCosts(grid: Tile[][], budget: Budget): Budget {
   newBudget.education.cost = schoolCount * 30 + universityCount * 100;
   newBudget.transportation.cost = roadCount * 2 + subwayTileCount * 3 + subwayStationCount * 25;
   newBudget.parks.cost = parkCount * 10;
-  newBudget.power.cost = powerCount * 150;
+  newBudget.power.cost = powerCount * 150 + solarCount * 50 + windCount * 75;
   newBudget.water.cost = waterCount * 75;
 
   return newBudget;
@@ -2314,14 +2321,21 @@ export function placeBuilding(
   } else if (buildingType) {
     const size = getBuildingSize(buildingType);
     
-    // Check water adjacency requirement for waterfront buildings (marina, pier)
+    // Check water adjacency requirement for waterfront buildings (marina, pier, wind turbine)
     let shouldFlip = false;
     if (requiresWaterAdjacency(buildingType)) {
-      const waterCheck = getWaterAdjacency(newGrid, x, y, size.width, size.height, state.gridSize);
-      if (!waterCheck.hasWater) {
-        return state; // Waterfront buildings must be placed next to water
+      // Wind turbines use isNearWater (5x5 area check) instead of edge adjacency
+      if (buildingType === 'wind_turbine') {
+        if (!isNearWater(newGrid, x, y, state.gridSize)) {
+          return state; // Wind turbines must be placed near water (coastal)
+        }
+      } else {
+        const waterCheck = getWaterAdjacency(newGrid, x, y, size.width, size.height, state.gridSize);
+        if (!waterCheck.hasWater) {
+          return state; // Waterfront buildings must be placed next to water
+        }
+        shouldFlip = waterCheck.shouldFlip;
       }
-      shouldFlip = waterCheck.shouldFlip;
     }
     
     if (size.width > 1 || size.height > 1) {

@@ -149,6 +149,8 @@ const QuickToolIcons: Partial<Record<Tool, React.ReactNode>> = {
     </svg>
   ),
   power_plant: <PowerIcon size={20} />,
+  solar_panel: <PowerIcon size={20} />,
+  wind_turbine: <PowerIcon size={20} />,
   water_tower: <WaterIcon size={20} />,
   subway_station: <SubwayIcon size={20} />,
   stadium: <TrophyIcon size={20} />,
@@ -192,7 +194,7 @@ const QuickToolIcons: Partial<Record<Tool, React.ReactNode>> = {
 const toolCategories = {
   'TOOLS': ['select', 'bulldoze', 'road', 'rail', 'subway'] as Tool[],
   'ZONES': ['zone_residential', 'zone_commercial', 'zone_industrial', 'zone_dezone'] as Tool[],
-  'UTILITIES': ['power_plant', 'water_tower', 'subway_station', 'rail_station'] as Tool[],
+  'UTILITIES': ['power_plant', 'solar_panel', 'wind_turbine', 'water_tower', 'subway_station', 'rail_station'] as Tool[],
   'SERVICES': ['police_station', 'fire_station', 'hospital', 'school', 'university'] as Tool[],
   'PARKS': ['park', 'park_large', 'tennis', 'playground_small', 'playground_large', 'community_garden', 'pond_park', 'park_gate', 'greenhouse_garden'] as Tool[],
   'SPORTS': ['basketball_courts', 'soccer_field_small', 'baseball_field_small', 'football_field', 'baseball_stadium', 'swimming_pool', 'skate_park', 'bleachers_field'] as Tool[],

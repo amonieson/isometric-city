@@ -203,4 +203,66 @@ describe('Server Socket.io Integration', () => {
     };
     client1.emit('joinRoom', joinMessage);
   });
+
+  it('should process and broadcast game actions', (done) => {
+    let roomCode: string;
+    let initialMoney: number;
+
+    // Create room
+    client1.once('roomJoined', (message) => {
+      roomCode = message.roomCode;
+      initialMoney = message.gameState.stats.money;
+
+      // Second player joins
+      client2.once('roomJoined', () => {
+        // Listen for state update on both clients
+        let updatesReceived = 0;
+        const checkDone = () => {
+          updatesReceived++;
+          if (updatesReceived === 2) {
+            done();
+          }
+        };
+
+        client1.once('stateUpdate', (update) => {
+          expect(update.type).toBe('stateUpdate');
+          expect(update.changedTiles).toBeDefined();
+          expect(update.changedTiles.length).toBeGreaterThan(0);
+          expect(update.stats).toBeDefined();
+          expect(update.stats.money).toBeLessThan(initialMoney);
+          checkDone();
+        });
+
+        client2.once('stateUpdate', (update) => {
+          expect(update.type).toBe('stateUpdate');
+          expect(update.changedTiles).toBeDefined();
+          checkDone();
+        });
+
+        // Send action from client1
+        client1.emit('action', {
+          type: 'action',
+          action: {
+            type: 'placeBuilding',
+            x: 10,
+            y: 10,
+            buildingType: 'house_small',
+          },
+        });
+      });
+
+      const joinMessage: JoinRoomMessage = {
+        type: 'joinRoom',
+        roomCode,
+      };
+      client2.emit('joinRoom', joinMessage);
+    });
+
+    const createMessage: CreateRoomMessage = {
+      type: 'createRoom',
+      cityName: 'Action Test City',
+      gridSize: 50,
+    };
+    client1.emit('createRoom', createMessage);
+  });
 });

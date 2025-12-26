@@ -4,8 +4,10 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import cors from 'cors';
 import { RoomManager } from './roomManager.js';
 import { createInitialGameState } from './gameState.js';
-import type { CreateRoomMessage, JoinRoomMessage } from '../../shared/types/messages.js';
+import { validateAction, processAction } from './actions.js';
+import type { CreateRoomMessage, JoinRoomMessage, ActionMessage } from '../../shared/types/messages.js';
 import type { PlayerInfo } from '../../shared/types/messages.js';
+import type { GameAction } from '../../shared/types/actions.js';
 
 export interface ServerInstance {
   app: Express;
@@ -168,6 +170,79 @@ export function createServer(port: number = 3001, autoStart: boolean = true): Se
           type: 'error',
           code: 'ROOM_JOIN_FAILED',
           message: 'Failed to join room',
+        });
+      }
+    });
+
+    // Handle game actions
+    socket.on('action', (message: ActionMessage) => {
+      try {
+        const roomId = socketToRoom.get(socket.id);
+        if (!roomId) {
+          socket.emit('error', {
+            type: 'error',
+            code: 'NOT_IN_ROOM',
+            message: 'You must be in a room to perform actions',
+          });
+          return;
+        }
+
+        const room = roomManager.getRoomById(roomId);
+        if (!room) {
+          socket.emit('error', {
+            type: 'error',
+            code: 'ROOM_NOT_FOUND',
+            message: 'Room not found',
+          });
+          return;
+        }
+
+        const currentState = room.getGameState();
+        if (!currentState) {
+          socket.emit('error', {
+            type: 'error',
+            code: 'NO_GAME_STATE',
+            message: 'Game state not initialized',
+          });
+          return;
+        }
+
+        // Process the action
+        const result = processAction(message.action, currentState);
+
+        if (!result.success) {
+          socket.emit('error', {
+            type: 'error',
+            code: 'ACTION_FAILED',
+            message: result.error || 'Action failed',
+            actionId: message.action.timestamp?.toString(),
+          });
+          return;
+        }
+
+        // Update room's game state
+        room.setGameState(result.newState!);
+
+        // Broadcast state update to all players in the room
+        const changedTiles = result.changedTiles || [];
+        room.broadcast('stateUpdate', {
+          type: 'stateUpdate',
+          changedTiles: changedTiles.map(({ x, y }) => ({
+            x,
+            y,
+            tile: result.newState!.grid[y][x],
+          })),
+          stats: result.newState!.stats,
+          timestamp: Date.now(),
+        });
+
+        console.log(`Action ${message.action.type} processed in room ${room.getCode()}`);
+      } catch (error) {
+        console.error('Error processing action:', error);
+        socket.emit('error', {
+          type: 'error',
+          code: 'ACTION_PROCESSING_ERROR',
+          message: 'Failed to process action',
         });
       }
     });

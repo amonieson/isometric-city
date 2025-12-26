@@ -1,4 +1,4 @@
-import type { GameState, Tile, Building, ZoneType } from '@isometric-city/shared';
+import type { GameState, Tile, Building, ZoneType } from '../../shared/types/game.js';
 
 /**
  * Creates a minimal initial game state for multiplayer rooms

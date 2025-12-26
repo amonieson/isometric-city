@@ -4,7 +4,8 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import cors from 'cors';
 import { RoomManager } from './roomManager.js';
 import { createInitialGameState } from './gameState.js';
-import type { CreateRoomMessage, JoinRoomMessage, PlayerInfo } from '@isometric-city/shared';
+import type { CreateRoomMessage, JoinRoomMessage } from '../../shared/types/messages.js';
+import type { PlayerInfo } from '../../shared/types/messages.js';
 
 export interface ServerInstance {
   app: Express;

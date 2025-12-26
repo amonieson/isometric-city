@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
-import type { GameState, PlayerInfo } from '@isometric-city/shared';
+import type { GameState } from '../../shared/types/game.js';
+import type { PlayerInfo } from '../../shared/types/messages.js';
 
 export class Room {
   private readonly id: string;

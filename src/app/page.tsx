@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { GameProvider } from '@/context/GameContext';
+import { MultiplayerGameProvider } from '@/context/MultiplayerGameProvider';
 import Game from '@/components/Game';
 import { useMobile } from '@/hooks/useMobile';
 import { getSpritePack, getSpriteCoords, DEFAULT_SPRITE_PACK_ID } from '@/lib/renderConfig';
@@ -280,11 +280,11 @@ export default function HomePage() {
 
   if (showGame) {
     return (
-      <GameProvider>
+      <MultiplayerGameProvider>
         <main className="h-screen w-screen overflow-hidden">
           <Game onExit={handleExitGame} />
         </main>
-      </GameProvider>
+      </MultiplayerGameProvider>
     );
   }
 

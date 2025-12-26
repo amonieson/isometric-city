@@ -11,6 +11,7 @@ import {
   TOOL_INFO,
   ZoneType,
 } from '@/types/game';
+import type { GameAction, PlaceBuildingAction, BulldozeAction, PlaceZoneAction } from '../../../shared/types/actions.js';
 import {
   bulldozeTile,
   createInitialGameState,

@@ -2831,6 +2831,22 @@ export function placeBuilding(
       shouldFlip = waterCheck.shouldFlip;
     }
     
+    // Check road connectivity requirement for service buildings
+    if (SERVICE_BUILDING_TYPES.has(buildingType)) {
+      const hasRoadConnectivity = isServiceBuildingRoadConnected(
+        newGrid,
+        x,
+        y,
+        buildingType,
+        state.gridSize
+      );
+      
+      if (!hasRoadConnectivity) {
+        // Return state unchanged - placement blocked
+        return state;
+      }
+    }
+    
     if (size.width > 1 || size.height > 1) {
       // Multi-tile building - check if we can place it
       if (!canPlaceMultiTileBuilding(newGrid, x, y, size.width, size.height, state.gridSize)) {
@@ -2883,6 +2899,12 @@ export function placeBuilding(
     // NOTE: Bridge creation is handled separately during drag operations across water
     // We do NOT auto-create bridges here because placing individual road tiles on opposite
     // sides of water should not automatically create a bridge - only explicit dragging should
+  }
+
+  // After successful placement, invalidate road cache if a service building was placed
+  if (buildingType && SERVICE_BUILDING_TYPES.has(buildingType)) {
+    invalidateServiceBuildingRoadCache();
+    currentRoadCacheVersion++;
   }
 
   return { ...state, grid: newGrid };

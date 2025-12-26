@@ -394,57 +394,84 @@ function applyDelta(localState: GameState, delta: StateDelta) {
 4. **Implement**: Follow migration path step-by-step
 5. **Test**: Comprehensive testing with multiple concurrent players
 
-## Follow-Up Questions
+## Follow-Up Questions & Answers
 
-1. **Scale Expectations**: How many players do you envision per game session? (2-4 players, 5-10, or 10+?)
+1. **Scale Expectations**: **2-4 players max, starting with 2** ✅
+   - Perfect for simple room-based architecture
+   - No need for complex scaling solutions initially
 
-2. **Game Mode**: Should multiplayer be:
-   - **Cooperative**: Players work together on one city
-   - **Competitive**: Players build separate cities and compete
-   - **Shared World**: Players build in different areas of a large map
-   - **All of the above**: Support multiple modes
+2. **Game Mode**: **Simplest to start with = Cooperative** ✅
+   - Players work together on one shared city
+   - No need for separate player areas or competition logic
+   - Simplest conflict resolution (first-come-first-served)
 
-3. **Persistence**: Should multiplayer games be:
-   - **Ephemeral**: Games end when all players leave
-   - **Persistent**: Games saved and can be resumed later
-   - **Hybrid**: Option to save/load multiplayer games
+3. **Persistence**: **Simplest to start with = Ephemeral** ✅
+   - Games end when all players leave
+   - No need for database persistence initially
+   - Can add persistence later as enhancement
 
-4. **Authority Model**: Should the game be:
-   - **Server-authoritative**: All actions validated on server (recommended)
-   - **Client-authoritative**: Clients send actions, server trusts them (not recommended)
-   - **Hybrid**: Some actions client-side, critical ones server-side
+4. **Authority Model**: **Server-authoritative (all actions validated on server)** ✅
+   - All game actions validated and applied on server
+   - Clients send actions, server processes and broadcasts
+   - Prevents cheating and ensures consistency
 
-5. **Real-time Requirements**: How important is low latency?
-   - **Critical**: <100ms latency required (competitive play)
-   - **Important**: <500ms acceptable (cooperative play)
-   - **Flexible**: Can tolerate higher latency (turn-based or slow-paced)
+5. **Real-time Requirements**: **Cooperative play (<500ms acceptable)** ✅
+   - <500ms latency is acceptable for cooperative building
+   - No need for ultra-low latency optimizations
+   - Standard WebSocket should be sufficient
 
-6. **Infrastructure**: Do you have preferences for:
-   - **Self-hosted**: Run servers yourself
-   - **Cloud-hosted**: Use cloud services (AWS, GCP, etc.)
-   - **Hybrid**: Mix of both
+6. **Infrastructure**: **Vercel (frontend) + Separate WebSocket Server** ⚠️
+   - **Important Constraint**: Vercel doesn't support persistent WebSocket connections
+   - **Solution**: Deploy multiplayer server separately (Railway, Render, Fly.io, or similar)
+   - Frontend stays on Vercel, connects to separate WebSocket server
+   - Alternative: Use Vercel Serverless Functions with polling (not ideal for real-time)
 
-7. **Monetization**: Will multiplayer be:
-   - **Free**: No cost to players
-   - **Premium**: Paid feature
-   - **Freemium**: Free with optional paid features
+7. **Monetization**: **Free** ✅
+   - No payment processing needed
+   - No premium features to gate
+   - Simplifies implementation
 
-8. **Backward Compatibility**: Should existing single-player saves:
-   - **Convert**: Automatically convert to multiplayer format
-   - **Separate**: Keep single-player and multiplayer separate
-   - **Both**: Support both formats
+8. **Backward Compatibility**: **Not specified - Recommend: Separate** 💡
+   - Keep single-player and multiplayer as separate modes
+   - Single-player continues using localStorage
+   - Multiplayer uses server state
+   - Avoids migration complexity
 
-9. **Moderation**: Do you need:
-   - **Admin tools**: For moderating games
-   - **Reporting system**: For player reports
-   - **Automated moderation**: Bot-based content filtering
+9. **Moderation**: **Automated moderation** ✅
+   - Basic content filtering for chat/actions
+   - Can start simple, enhance later
+   - No admin tools needed initially
 
-10. **Testing Strategy**: How should we test multiplayer?
-    - **Local testing**: Test with multiple browser tabs
-    - **Staging environment**: Deploy to staging for testing
-    - **Beta program**: Limited beta with real players
+10. **Testing Strategy**: **Multiple browser tabs** ✅
+    - Test locally with multiple browser tabs/windows
+    - Each tab connects as separate client
+    - Simplest testing approach
+
+## Implementation Plan Based on Answers
+
+### Phase 1: Minimal Viable Multiplayer (2 Players, Cooperative, Ephemeral)
+
+**Architecture:**
+- **Frontend**: Next.js on Vercel (unchanged)
+- **Backend**: Separate Node.js server with Socket.io (deploy to Railway/Render/Fly.io)
+- **Game Mode**: Cooperative - players share one city
+- **Persistence**: In-memory only (ephemeral games)
+- **Testing**: Local development with multiple browser tabs
+
+**Key Simplifications:**
+1. **No database**: Games exist only in memory, cleared when all players leave
+2. **No authentication**: Start with simple room codes (e.g., "ABC123")
+3. **Simple conflict resolution**: First action wins, others get rejection
+4. **Full state sync**: Send full state on join, deltas on updates (optimize later)
+5. **2-player focus**: Room capacity of 2, expandable later
+
+**Server Requirements:**
+- Node.js + Express + Socket.io
+- Minimal dependencies
+- Can run on free tier of Railway/Render/Fly.io
 
 ---
 
 *Research completed using Driver MCP tools to analyze Bloc, Colyseus, Starpeace, and 3D.City codebases.*
+
 

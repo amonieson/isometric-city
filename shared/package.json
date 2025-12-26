@@ -1,0 +1,21 @@
+{
+  "name": "@isometric-city/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./types/index.ts",
+  "types": "./types/index.ts",
+  "exports": {
+    ".": "./types/index.ts",
+    "./game": "./types/game.ts",
+    "./actions": "./types/actions.ts",
+    "./messages": "./types/messages.ts"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^4.0.16"
+  }
+}

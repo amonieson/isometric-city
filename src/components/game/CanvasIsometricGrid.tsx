@@ -1801,30 +1801,22 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       const w = TILE_WIDTH;
       const h = TILE_HEIGHT;
       const panelH = h * 0.3;
+      const groundY = y + h; // Ground level (bottom of isometric diamond)
+      const yOffset = panelH * 0.5; // Offset for base platform (from ground)
       
-      // Draw ground tile (isometric diamond - standard tile position)
-      ctx.fillStyle = '#4a7c3f';
-      ctx.strokeStyle = '#2d4a26';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(x + w / 2, y);
-      ctx.lineTo(x + w, y + h / 2);
-      ctx.lineTo(x + w / 2, y + h);
-      ctx.lineTo(x, y + h / 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+      // Note: Ground tile is already drawn by base rendering system
       
       // Draw base platform (isometric box) - positioned on ground
       const baseW = w * 0.6;
       const baseH = h * 0.4;
       const baseDepth = h * 0.15;
-      const baseCenterY = y + h - baseH / 2 - baseDepth; // Position on ground
+      const baseTopY = groundY - baseDepth - baseH; // Top face Y position (relative to ground)
       const baseX = x + (w - baseW) / 2;
-      const baseTopY = baseCenterY - baseH / 2;
       
-      // Base top face
+      // Base top face (isometric diamond)
       ctx.fillStyle = '#2a2a2a';
+      ctx.strokeStyle = '#1a1a1a';
+      ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.moveTo(baseX + baseW / 2, baseTopY);
       ctx.lineTo(baseX + baseW, baseTopY + baseH / 2);
@@ -1832,6 +1824,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       ctx.lineTo(baseX, baseTopY + baseH / 2);
       ctx.closePath();
       ctx.fill();
+      ctx.stroke();
       
       // Base left face
       ctx.fillStyle = '#1a1a1a';
@@ -1853,9 +1846,9 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       ctx.closePath();
       ctx.fill();
       
-      // Draw solar panel array (angled polygon) - above base
+      // Draw solar panel array (angled polygon) - above base, matching SVG design
       const panelTopY = baseTopY - panelH * 0.4;
-      const panelBottomY = baseTopY - panelH * 0.0;
+      const panelBottomY = baseTopY;
       const panelX1 = x + w * 0.2;
       const panelX2 = x + w * 0.8;
       const panelX3 = x + w * 0.75;
@@ -1873,7 +1866,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       ctx.fill();
       ctx.stroke();
       
-      // Draw panel grid lines (3 vertical lines)
+      // Draw panel grid lines (3 vertical lines) - matching SVG
       ctx.strokeStyle = '#0a2a4a';
       ctx.lineWidth = 0.3;
       for (let i = 0; i < 3; i++) {
@@ -1885,11 +1878,11 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
         ctx.stroke();
       }
       
-      // Draw support posts (3 rectangles connecting panel to base)
+      // Draw support posts (3 rectangles connecting panel to base) - matching SVG
       ctx.fillStyle = '#4a5568';
       const postWidth = 2;
       const postTopY = panelBottomY;
-      const postBottomY = baseTopY;
+      const postBottomY = baseTopY + baseH / 2;
       
       ctx.fillRect(x + w * 0.25 - 1, postTopY, postWidth, postBottomY - postTopY);
       ctx.fillRect(x + w * 0.5 - 1, postTopY, postWidth, postBottomY - postTopY);
@@ -1901,23 +1894,13 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       const w = TILE_WIDTH;
       const h = TILE_HEIGHT;
       const towerH = h * 2.0;
+      const groundY = y + h; // Ground level (bottom of isometric diamond)
       
-      // Draw ground tile (isometric diamond - standard tile position)
-      ctx.fillStyle = '#4a7c3f';
-      ctx.strokeStyle = '#2d4a26';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(x + w / 2, y);
-      ctx.lineTo(x + w, y + h / 2);
-      ctx.lineTo(x + w / 2, y + h);
-      ctx.lineTo(x, y + h / 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+      // Note: Ground tile is already drawn by the base rendering system
       
-      // Draw tower (tapered polygon) - extends upward from ground
-      const towerBottomY = y + h;
-      const towerTopY = y - towerH + h;
+      // Draw tower (tapered polygon) - extends upward from ground, matching SVG design
+      const towerBottomY = groundY;
+      const towerTopY = groundY - towerH;
       const towerBottomX1 = x + w * 0.48;
       const towerBottomX2 = x + w * 0.52;
       const towerTopX1 = x + w * 0.51;
@@ -1935,7 +1918,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       ctx.fill();
       ctx.stroke();
       
-      // Draw nacelle (housing at top - ellipse)
+      // Draw nacelle (housing at top - ellipse) - matching SVG
       const nacelleX = x + w / 2;
       const nacelleY = towerTopY;
       const nacelleRX = w * 0.15;
@@ -1949,7 +1932,7 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       ctx.fill();
       ctx.stroke();
       
-      // Draw blades (3 lines at 120-degree angles)
+      // Draw blades (3 lines at 120-degree angles) - matching SVG design
       const bladeLength = w * 0.25;
       const centerX = nacelleX;
       const centerY = nacelleY;
@@ -1979,6 +1962,16 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
       // Handle roads separately with adjacency
       if (buildingType === 'road') {
         drawRoad(ctx, x, y, tile.x, tile.y, zoom);
+        return;
+      }
+      
+      // Handle custom canvas-rendered buildings (no sprites) - check early
+      if (buildingType === 'solar_panel') {
+        drawSolarPanel(ctx, x, y);
+        return;
+      }
+      if (buildingType === 'wind_turbine') {
+        drawWindTurbine(ctx, x, y);
         return;
       }
       
@@ -2736,15 +2729,9 @@ export function CanvasIsometricGrid({ overlayMode, selectedTile, setSelectedTile
           }
         }
       } else {
-        // Building type has no sprite - use custom drawing functions or placeholder
-        if (buildingType === 'solar_panel') {
-          drawSolarPanel(ctx, x, y);
-        } else if (buildingType === 'wind_turbine') {
-          drawWindTurbine(ctx, x, y);
-        } else {
-          // Fallback to placeholder for other buildings without sprites
-          drawPlaceholderBuilding(ctx, x, y, buildingType, w, h);
-        }
+        // Building type has no sprite - use placeholder
+        // Note: solar_panel and wind_turbine are handled earlier in the function
+        drawPlaceholderBuilding(ctx, x, y, buildingType, w, h);
       }
       
       // Draw fire effect

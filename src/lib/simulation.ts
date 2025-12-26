@@ -1789,7 +1789,10 @@ export function simulateTick(state: GameState): GameState {
           tile.building.constructionProgress !== undefined &&
           tile.building.constructionProgress < 100 &&
           !NO_CONSTRUCTION_TYPES.includes(tile.building.type)) {
-        const isUtilityBuilding = tile.building.type === 'power_plant' || tile.building.type === 'water_tower';
+        const isUtilityBuilding = tile.building.type === 'power_plant' || 
+                                  tile.building.type === 'water_tower' ||
+                                  tile.building.type === 'solar_panel' ||
+                                  tile.building.type === 'wind_turbine';
         const canConstruct = isUtilityBuilding || (tile.building.powered && tile.building.watered);
         
         if (canConstruct) {

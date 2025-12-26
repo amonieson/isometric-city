@@ -108,6 +108,8 @@ const toolBuildingMap: Partial<Record<Tool, BuildingType>> = {
   tennis: 'tennis',
   power_plant: 'power_plant',
   water_tower: 'water_tower',
+  solar_panel: 'solar_panel',
+  wind_turbine: 'wind_turbine',
   subway_station: 'subway_station',
   stadium: 'stadium',
   museum: 'museum',

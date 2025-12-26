@@ -1,10 +1,12 @@
 import express, { Express, Request, Response } from 'express';
 import { createServer as createHttpServer, Server as HttpServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 
 export interface ServerInstance {
   app: Express;
   httpServer: HttpServer;
+  io: SocketIOServer;
   close: () => void;
 }
 
@@ -23,6 +25,23 @@ export function createServer(port: number = 3001): ServerInstance {
   // Create HTTP server
   const httpServer = createHttpServer(app);
 
+  // Create Socket.io server
+  const io = new SocketIOServer(httpServer, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+    },
+  });
+
+  // Socket.io connection handling
+  io.on('connection', (socket) => {
+    console.log(`Client connected: ${socket.id}`);
+    
+    socket.on('disconnect', () => {
+      console.log(`Client disconnected: ${socket.id}`);
+    });
+  });
+
   // Start server
   httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
@@ -31,7 +50,9 @@ export function createServer(port: number = 3001): ServerInstance {
   return {
     app,
     httpServer,
+    io,
     close: () => {
+      io.close();
       httpServer.close();
     },
   };

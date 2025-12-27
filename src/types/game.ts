@@ -385,7 +385,7 @@ export interface GameState {
   notifications: Notification[];
   advisorMessages: AdvisorMessage[];
   history: HistoryPoint[];
-  activePanel: 'none' | 'budget' | 'statistics' | 'advisors' | 'settings';
+  activePanel: 'none' | 'budget' | 'statistics' | 'advisors' | 'settings' | 'multiplayer';
   disastersEnabled: boolean;
   adjacentCities: AdjacentCity[];
   waterBodies: WaterBody[];

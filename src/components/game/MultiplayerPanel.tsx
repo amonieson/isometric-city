@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Copy, Check } from 'lucide-react';
+import { Users, Copy, Check, X } from 'lucide-react';
+import { useGame } from '@/context/GameContext';
 
 export function MultiplayerPanel() {
   const {
@@ -19,6 +20,7 @@ export function MultiplayerPanel() {
     createRoom,
     joinRoom,
   } = useMultiplayerContext();
+  const { setActivePanel } = useGame();
 
   const [joinCode, setJoinCode] = useState('');
   const [cityName, setCityName] = useState('Multiplayer City');
@@ -59,10 +61,20 @@ export function MultiplayerPanel() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Multiplayer
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            <CardTitle>Multiplayer</CardTitle>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setActivePanel('none')}
+            className="h-6 w-6"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         <CardDescription>
           Play together with friends in real-time
         </CardDescription>

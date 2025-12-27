@@ -389,6 +389,18 @@ export function SubwayStationIcon({ size = 18, className }: IconProps) {
   );
 }
 
+export function UsersIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className}>
+      {/* Two people icons */}
+      <circle {...baseStroke} cx="9" cy="7" r="3" />
+      <path {...baseStroke} d="M4 19c0-2.5 2-4.5 5-4.5s5 2 5 4.5" />
+      <circle {...baseStroke} cx="17" cy="9" r="2.5" />
+      <path {...baseStroke} d="M13 19c0-1.8 1.2-3.2 3-3.2s3 1.4 3 3.2" />
+    </svg>
+  );
+}
+
 function ZoneIcon({ color, size = 18, className }: IconProps & { color: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" className={className}>

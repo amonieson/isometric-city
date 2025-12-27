@@ -12,6 +12,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCheatCodes } from '@/hooks/useCheatCodes';
 import { VinnieDialog } from '@/components/VinnieDialog';
 import { CommandMenu } from '@/components/ui/CommandMenu';
+import { MultiplayerPanel } from '@/components/game/MultiplayerPanel';
 
 // Import game components
 import { OverlayMode } from '@/components/game/types';
@@ -240,6 +241,20 @@ export default function Game({ onExit }: { onExit?: () => void }) {
           {state.activePanel === 'statistics' && <StatisticsPanel />}
           {state.activePanel === 'advisors' && <AdvisorsPanel />}
           {state.activePanel === 'settings' && <SettingsPanel />}
+          {state.activePanel === 'multiplayer' && (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setActivePanel('none');
+                }
+              }}
+            >
+              <div className="bg-background border border-border rounded-lg max-w-md w-full">
+                <MultiplayerPanel />
+              </div>
+            </div>
+          )}
           
           <VinnieDialog open={showVinnieDialog} onOpenChange={setShowVinnieDialog} />
         </div>
@@ -275,6 +290,20 @@ export default function Game({ onExit }: { onExit?: () => void }) {
         {state.activePanel === 'statistics' && <StatisticsPanel />}
         {state.activePanel === 'advisors' && <AdvisorsPanel />}
         {state.activePanel === 'settings' && <SettingsPanel />}
+        {state.activePanel === 'multiplayer' && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setActivePanel('none');
+              }
+            }}
+          >
+            <div className="bg-background border border-border rounded-lg max-w-md w-full mx-4">
+              <MultiplayerPanel />
+            </div>
+          </div>
+        )}
         
         <VinnieDialog open={showVinnieDialog} onOpenChange={setShowVinnieDialog} />
         <CommandMenu />

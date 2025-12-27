@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useMultiplayerContext } from '@/context/MultiplayerContext';
 import { useGame } from '@/context/GameContext';
-import type { PlaceBuildingAction, BulldozeAction, PlaceZoneAction } from '../../../shared/types/actions.js';
+import type { PlaceBuildingAction, BulldozeAction, PlaceZoneAction } from '../../shared/types/actions.js';
 import { Tool, TOOL_INFO } from '@/types/game';
 
 const toolBuildingMap: Partial<Record<Tool, string>> = {
@@ -34,15 +34,13 @@ const toolZoneMap: Partial<Record<Tool, string>> = {
  * Routes actions to server if in multiplayer mode, otherwise applies locally
  */
 export function useMultiplayerActions() {
-  const { placeAtTile: localPlaceAtTile } = useGame();
+  const { placeAtTile: localPlaceAtTile, state } = useGame();
   const multiplayer = useMultiplayerContext();
 
   const placeAtTile = useCallback((x: number, y: number) => {
     // Check if we're in multiplayer mode
     if (multiplayer.roomCode && multiplayer.isConnected && multiplayer.sendAction) {
-      // Get current tool from game state (we'll need to access it)
-      // For now, we'll use a workaround - get it from the game context
-      const tool = (multiplayer.gameState as any)?.selectedTool;
+      const tool = state.selectedTool;
       if (!tool || tool === 'select') {
         localPlaceAtTile(x, y);
         return;
@@ -77,17 +75,17 @@ export function useMultiplayerActions() {
       }
 
       if (action) {
-        // Send action to server
+        // Send action to server (server will validate and process)
         multiplayer.sendAction(action as any);
       } else {
-        // Fallback to local handling for unsupported actions
+        // Fallback to local handling for unsupported actions (subway, terraform, etc.)
         localPlaceAtTile(x, y);
       }
     } else {
       // Single-player mode - use local handler
       localPlaceAtTile(x, y);
     }
-  }, [localPlaceAtTile, multiplayer]);
+  }, [localPlaceAtTile, multiplayer, state.selectedTool]);
 
   return { placeAtTile };
 }

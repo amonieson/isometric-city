@@ -10,25 +10,37 @@ import type { GameState } from '@/types/game';
  */
 function MultiplayerStateSync() {
   const multiplayer = useMultiplayerContext();
-  const gameStateRef = useRef<GameState | null>(null);
-  
-  // Get access to GameContext's internal state setter via a workaround
-  // We'll use the loadState function to update the state
   const { loadState, state } = useGame();
+  const lastSyncedStateRef = useRef<string | null>(null);
+  const isInitialLoadRef = useRef(false);
 
   // When we join a room, load the initial game state
   useEffect(() => {
     if (multiplayer.gameState && multiplayer.roomCode && multiplayer.isConnected) {
       const stateString = JSON.stringify(multiplayer.gameState);
-      const currentStateString = JSON.stringify(gameStateRef.current);
       
       // Only update if the state actually changed
-      if (stateString !== currentStateString) {
-        gameStateRef.current = multiplayer.gameState;
-        loadState(stateString);
+      if (stateString !== lastSyncedStateRef.current) {
+        lastSyncedStateRef.current = stateString;
+        // Preserve UI state when loading
+        const stateToLoad = {
+          ...multiplayer.gameState,
+          selectedTool: state.selectedTool,
+          activePanel: state.activePanel,
+          speed: state.speed,
+        };
+        loadState(JSON.stringify(stateToLoad));
+        
+        if (!isInitialLoadRef.current) {
+          isInitialLoadRef.current = true;
+        }
       }
+    } else {
+      // Reset when leaving multiplayer
+      isInitialLoadRef.current = false;
+      lastSyncedStateRef.current = null;
     }
-  }, [multiplayer.gameState, multiplayer.roomCode, multiplayer.isConnected, loadState]);
+  }, [multiplayer.gameState, multiplayer.roomCode, multiplayer.isConnected, loadState, state.selectedTool, state.activePanel, state.speed]);
 
   return null;
 }

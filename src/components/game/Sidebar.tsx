@@ -8,6 +8,7 @@ import {
   ChartIcon,
   AdvisorIcon,
   SettingsIcon,
+  UsersIcon,
 } from '@/components/ui/Icons';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -452,12 +453,13 @@ export const Sidebar = React.memo(function Sidebar({ onExit }: { onExit?: () => 
       </ScrollArea>
       
       <div className="border-t border-sidebar-border p-2">
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-5 gap-1">
           {[
             { panel: 'budget' as const, icon: <BudgetIcon size={16} />, label: 'Budget' },
             { panel: 'statistics' as const, icon: <ChartIcon size={16} />, label: 'Statistics' },
             { panel: 'advisors' as const, icon: <AdvisorIcon size={16} />, label: 'Advisors' },
             { panel: 'settings' as const, icon: <SettingsIcon size={16} />, label: 'Settings' },
+            { panel: 'multiplayer' as const, icon: <UsersIcon size={16} />, label: 'Multiplayer' },
           ].map(({ panel, icon, label }) => (
             <Button
               key={panel}
